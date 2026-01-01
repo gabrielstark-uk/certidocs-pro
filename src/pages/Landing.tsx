@@ -272,9 +272,9 @@ export default function Landing() {
 
                   <div className="flex items-baseline gap-1 mb-6">
                     <span className="text-3xl font-display font-bold text-foreground">
-                      ${(tier.price / 100).toFixed(2)}
+                      £{(tier.price / 100).toFixed(2)}
                     </span>
-                    <span className="text-sm text-muted-foreground">USD</span>
+                    <span className="text-sm text-muted-foreground">GBP</span>
                   </div>
 
                   <ul className="space-y-3 mb-6">
@@ -300,30 +300,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Disclaimer */}
-      <section className="py-12 border-t border-border">
-        <div className="container">
-          <div className="max-w-3xl mx-auto p-6 bg-warning/5 border border-warning/20 rounded-xl">
-            <div className="flex items-start gap-4">
-              <AlertTriangle className="w-6 h-6 text-warning flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-display font-semibold text-foreground mb-2">
-                  Important Legal Disclaimer
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  CertiDocs provides digital certification services that attest to file integrity, 
-                  timestamps, and provenance only. Our service is <strong>not</strong> a substitute 
-                  for legal advice, official notarization, or court-ordered authentication. 
-                  CertiDocs does not verify the accuracy or authenticity of file contents, nor 
-                  do we provide any form of legal validity to documents. Users should consult 
-                  with legal professionals regarding the admissibility and use of certified 
-                  documents in legal proceedings.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="py-20 md:py-32 gradient-hero text-primary-foreground">

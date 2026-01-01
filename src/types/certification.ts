@@ -56,7 +56,7 @@ export const PRICING: Record<DocumentType, PricingTier> = {
     type: 'single',
     name: 'Single Certified Document',
     description: 'Certification for a single evidence file',
-    price: 999, // $9.99 in cents
+    price: 799, // £7.99 in pence
     features: [
       'SHA-256 cryptographic hash',
       'UTC timestamp certification',
@@ -69,7 +69,7 @@ export const PRICING: Record<DocumentType, PricingTier> = {
     type: 'report',
     name: 'Evidence Report',
     description: 'Comprehensive report for multiple files',
-    price: 2499, // $24.99 in cents
+    price: 1999, // £19.99 in pence
     features: [
       'Up to 10 evidence files',
       'Exhibit indexing (A, B, C...)',
@@ -83,7 +83,7 @@ export const PRICING: Record<DocumentType, PricingTier> = {
     type: 'bundle',
     name: 'Court-Ready Bundle',
     description: 'Complete documentation package',
-    price: 4999, // $49.99 in cents
+    price: 3999, // £39.99 in pence
     features: [
       'Up to 25 evidence files',
       'Exhibit indexing with descriptions',
