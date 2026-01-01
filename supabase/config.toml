@@ -2,3 +2,6 @@ project_id = "orpcpsdjlmdfxcjzlemm"
 
 [functions.send-receipt]
 verify_jwt = false
+
+[functions.draft-legal-document]
+verify_jwt = false

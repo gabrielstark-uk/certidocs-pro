@@ -9,14 +9,13 @@ import {
   Download,
   ChevronRight,
   CheckCircle2,
-  AlertTriangle,
   FileText,
   FileStack,
   FolderArchive,
   Scale,
-  Award,
   BadgeCheck,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -99,6 +98,13 @@ export default function Landing() {
                   <FileCheck className="w-5 h-5 mr-2" />
                   Certify Documents
                   <ChevronRight className="w-4 h-4 ml-1" />
+                </Link>
+              </Button>
+
+              <Button variant="hero-outline" size="xl" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Link to="/draft-document">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Draft Legal Document
                 </Link>
               </Button>
               
