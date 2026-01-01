@@ -8,6 +8,7 @@ import Upload from "./pages/Upload";
 import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import HowItWorks from "./pages/HowItWorks";
+import DraftDocument from "./pages/DraftDocument";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/checkout/:certificationId" element={<Checkout />} />
           <Route path="/success" element={<Success />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/draft-document" element={<DraftDocument />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
