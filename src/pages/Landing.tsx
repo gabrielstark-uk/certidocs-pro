@@ -12,7 +12,11 @@ import {
   AlertTriangle,
   FileText,
   FileStack,
-  FolderArchive
+  FolderArchive,
+  Scale,
+  Award,
+  BadgeCheck,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -108,10 +112,50 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Legal Certification Badge */}
+      <section className="border-b border-border bg-primary/5">
+        <div className="container py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="flex flex-col md:flex-row items-center gap-8 p-8 rounded-2xl bg-card border-2 border-accent/20 shadow-elevated">
+              <div className="flex-shrink-0">
+                <div className="w-24 h-24 rounded-full bg-accent/10 border-4 border-accent/30 flex items-center justify-center">
+                  <Scale className="w-12 h-12 text-accent" />
+                </div>
+              </div>
+              
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold uppercase tracking-wide mb-3">
+                  <BadgeCheck className="w-4 h-4" />
+                  Certified Legal Document Provider
+                </div>
+                <h3 className="font-display text-xl md:text-2xl font-bold text-foreground mb-2">
+                  Court-Admissible Digital Certification
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  CertiDocs is a certified provider of legally admissible digital documentation. Our certification 
+                  process meets evidentiary standards for digital evidence integrity, chain of custody, and 
+                  timestamp authentication recognized by courts and legal institutions.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Trust Indicators */}
       <section className="border-b border-border bg-card">
         <div className="container py-8">
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-accent" />
+              <span>Court-Admissible</span>
+            </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-success" />
               <span>SHA-256 Encryption</span>
