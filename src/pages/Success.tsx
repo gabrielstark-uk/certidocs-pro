@@ -52,15 +52,35 @@ export default function Success() {
     if (!certification) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-certificate', {
-        body: { certificationId: certification.id },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-certificate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ certificationId: certification.id }),
+        }
+      );
 
-      if (error) throw error;
-
-      if (data?.downloadUrl) {
-        window.open(data.downloadUrl, '_blank');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate certificate');
       }
+
+      // Get the HTML content and create a download
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CertiDocs-${certification.document_id}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download error:', error);
       toast({
