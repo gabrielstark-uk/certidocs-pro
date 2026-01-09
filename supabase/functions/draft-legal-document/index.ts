@@ -110,9 +110,9 @@ serve(async (req) => {
     console.log("Drafting document type:", documentType);
     console.log("Details provided:", JSON.stringify(details));
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const CLAUDE_API_KEY = Deno.env.get("ClaudeOpus");
+    if (!CLAUDE_API_KEY) {
+      throw new Error("Claude API key is not configured");
     }
 
     const systemPrompt = DOCUMENT_PROMPTS[documentType];
@@ -128,47 +128,51 @@ ${Object.entries(details)
 
 Draft the complete document with all required sections. Use professional UK legal language and formatting. Output the document text only, no explanations or meta-commentary.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": CLAUDE_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-opus-4-5-20251101",
+        max_tokens: 8192,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
       }),
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Claude API error:", response.status, errorText);
+      
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: "AI usage limit reached. Please add credits." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Invalid API key. Please check your Claude API key." }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`Claude API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const documentContent = data.choices?.[0]?.message?.content;
+    const documentContent = data.content?.[0]?.text;
 
     if (!documentContent) {
-      throw new Error("No content generated from AI");
+      console.error("Unexpected response structure:", JSON.stringify(data));
+      throw new Error("No content generated from Claude");
     }
 
-    console.log("Document drafted successfully, length:", documentContent.length);
+    console.log("Document drafted successfully with Claude Opus, length:", documentContent.length);
 
     return new Response(
       JSON.stringify({ 
