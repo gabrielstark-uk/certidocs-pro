@@ -63,11 +63,18 @@ const ICONS = {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-background">
       {/* Hero Section */}
       <section className="gradient-hero text-primary-foreground">
-        <header className="container py-6">
+        <header className="container py-6 flex items-center justify-between">
           <Logo variant="light" size="lg" />
+          <div className="flex items-center gap-3">
+            <Link to="/auth">
+              <Button variant="ghost" size="sm" className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 border border-primary-foreground/20">
+                Sign In
+              </Button>
+            </Link>
+          </div>
         </header>
 
         <div className="container py-20 md:py-32">
