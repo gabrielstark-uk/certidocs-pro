@@ -116,6 +116,7 @@ export type Database = {
           payment_intent_id: string | null
           status: Database["public"]["Enums"]["certification_status"]
           total_files: number
+          user_id: string | null
         }
         Insert: {
           certified_at?: string | null
@@ -133,6 +134,7 @@ export type Database = {
           payment_intent_id?: string | null
           status?: Database["public"]["Enums"]["certification_status"]
           total_files?: number
+          user_id?: string | null
         }
         Update: {
           certified_at?: string | null
@@ -150,6 +152,37 @@ export type Database = {
           payment_intent_id?: string | null
           status?: Database["public"]["Enums"]["certification_status"]
           total_files?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
