@@ -12,12 +12,44 @@ const PRICING: Record<string, { name: string; price: number }> = {
   bundle: { name: "Court-Ready Bundle", price: 3999 },
 };
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10; // checkout attempts per minute
+const RATE_WINDOW = 60000; // 1 minute
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Rate limiting
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    if (!checkRateLimit(ip)) {
+      console.log("Rate limit exceeded for IP:", ip);
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const stripeKey = Deno.env.get("Stripe");
     if (!stripeKey) {
       console.error("Stripe secret key not configured");
@@ -28,19 +60,53 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { certificationId, documentType, email } = await req.json();
+    const body = await req.json();
+    const { certificationId, documentType, email, documentId } = body;
 
-    console.log("Creating checkout session for:", { certificationId, documentType, email });
+    console.log("Creating checkout session for:", { certificationId, documentType });
 
-    // Validate required fields
-    if (!certificationId || !documentType) {
-      throw new Error("Missing required fields: certificationId and documentType");
+    // Input validation
+    if (!certificationId || typeof certificationId !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid certification ID" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!documentType || typeof documentType !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid document type" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(certificationId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid certification ID format" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Email validation if provided
+    if (email && typeof email === "string") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email) || email.length > 255) {
+        return new Response(
+          JSON.stringify({ error: "Invalid email format" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
     }
 
     // Validate document type
     const pricingTier = PRICING[documentType];
     if (!pricingTier) {
-      throw new Error(`Invalid document type: ${documentType}`);
+      return new Response(
+        JSON.stringify({ error: "Invalid document type" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     // Verify certification exists in database

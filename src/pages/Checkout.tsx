@@ -32,24 +32,34 @@ export default function Checkout() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('certifications')
-        .select('*')
-        .eq('id', certificationId)
-        .single();
+      try {
+        // Use secure edge function instead of direct DB access
+        const { data, error } = await supabase.functions.invoke('get-certification', {
+          body: { certificationId },
+        });
 
-      if (error || !data) {
+        if (error || !data?.certification) {
+          toast({
+            title: 'Certification not found',
+            description: 'Please start a new certification.',
+            variant: 'destructive',
+          });
+          navigate('/upload');
+          return;
+        }
+
+        setCertification(data.certification as CertificationData);
+      } catch (err) {
+        console.error('Error fetching certification:', err);
         toast({
-          title: 'Certification not found',
-          description: 'Please start a new certification.',
+          title: 'Error',
+          description: 'Failed to load certification. Please try again.',
           variant: 'destructive',
         });
         navigate('/upload');
-        return;
+      } finally {
+        setIsLoading(false);
       }
-
-      setCertification(data as CertificationData);
-      setIsLoading(false);
     }
 
     fetchCertification();
