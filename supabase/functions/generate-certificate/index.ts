@@ -5,6 +5,28 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Rate limiting per certification ID to prevent abuse
+const downloadLimitMap = new Map<string, { count: number; resetTime: number }>();
+const DOWNLOAD_LIMIT = 10; // downloads per hour per certification
+const DOWNLOAD_WINDOW = 3600000; // 1 hour in ms
+
+function checkDownloadLimit(certId: string): boolean {
+  const now = Date.now();
+  const record = downloadLimitMap.get(certId);
+  
+  if (!record || now > record.resetTime) {
+    downloadLimitMap.set(certId, { count: 1, resetTime: now + DOWNLOAD_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= DOWNLOAD_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
 const formatDocumentType = (type: string): string => {
   switch (type) {
     case "single": return "Single Certified Document";
@@ -24,12 +46,34 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { certificationId } = await req.json();
+    const body = await req.json();
+    const { certificationId, documentId } = body;
 
     console.log("Generating certificate for:", certificationId);
 
-    if (!certificationId) {
-      throw new Error("Missing certification ID");
+    // Input validation
+    if (!certificationId || typeof certificationId !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid certification ID" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(certificationId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid certification ID format" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Rate limiting per certification
+    if (!checkDownloadLimit(certificationId)) {
+      return new Response(
+        JSON.stringify({ error: "Download limit exceeded. Please try again later." }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     // Fetch certification with files

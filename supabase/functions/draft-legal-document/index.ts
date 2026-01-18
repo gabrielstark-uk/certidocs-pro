@@ -5,6 +5,56 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Rate limiting for expensive AI calls
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 5; // AI requests per hour
+const RATE_WINDOW = 3600000; // 1 hour in ms
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+// Sanitize user input to prevent prompt injection
+function sanitizeInput(value: string): string {
+  return value
+    .trim()
+    .replace(/[\r\n]+/g, ' ')  // Remove newlines that could break prompt structure
+    .replace(/[\t]+/g, ' ')     // Remove tabs
+    .substring(0, 2000);        // Length limit per field
+}
+
+// Check for injection patterns
+function hasInjectionPattern(value: string): boolean {
+  const injectionPatterns = [
+    /ignore (previous|all|above) instructions?/i,
+    /system prompt/i,
+    /you are now/i,
+    /jailbreak/i,
+    /forget (everything|all|your)/i,
+    /disregard/i,
+  ];
+  
+  for (const pattern of injectionPatterns) {
+    if (pattern.test(value)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 interface DraftRequest {
   documentType: string;
   details: Record<string, string>;
@@ -105,10 +155,35 @@ serve(async (req) => {
   }
 
   try {
-    const { documentType, details }: DraftRequest = await req.json();
+    // Rate limiting for expensive AI calls
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    if (!checkRateLimit(ip)) {
+      console.log("Rate limit exceeded for IP:", ip);
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const body = await req.json();
+    const { documentType, details }: DraftRequest = body;
     
     console.log("Drafting document type:", documentType);
-    console.log("Details provided:", JSON.stringify(details));
+
+    // Input validation
+    if (!documentType || typeof documentType !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid document type" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!details || typeof details !== "object") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid details" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const CLAUDE_API_KEY = Deno.env.get("ClaudeOpus");
     if (!CLAUDE_API_KEY) {
@@ -117,12 +192,32 @@ serve(async (req) => {
 
     const systemPrompt = DOCUMENT_PROMPTS[documentType];
     if (!systemPrompt) {
-      throw new Error(`Unknown document type: ${documentType}`);
+      return new Response(
+        JSON.stringify({ error: "Unknown document type" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize and validate all user inputs
+    const sanitizedDetails: Record<string, string> = {};
+    for (const [key, value] of Object.entries(details)) {
+      if (typeof value !== "string") continue;
+      
+      // Check for injection patterns
+      if (hasInjectionPattern(value)) {
+        console.log("Potential prompt injection detected in field:", key);
+        return new Response(
+          JSON.stringify({ error: "Invalid input detected" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      sanitizedDetails[key] = sanitizeInput(value);
     }
 
     const userPrompt = `Please draft the document with the following details:
 
-${Object.entries(details)
+${Object.entries(sanitizedDetails)
   .map(([key, value]) => `${key}: ${value}`)
   .join("\n")}
 
