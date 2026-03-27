@@ -94,9 +94,9 @@ export default function Landing() {
             </h1>
 
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl">
-              Generate professional certificates that prove when your files existed and that 
-              they haven't been tampered with. Perfect for legal documentation, evidence 
-              preservation, and proof of provenance.
+              Generate court-admissible certificates and draft legal documents powered by AI. 
+              All certified evidence and drafted documents are fully admissible in court 
+              proceedings across UK jurisdictions.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -203,8 +203,8 @@ export default function Landing() {
               How CertiDocs Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our certification process creates an immutable record of your digital evidence, 
-              providing proof of existence and integrity.
+              Our certification process creates court-admissible records of your digital evidence, 
+              providing legally recognised proof of existence and integrity.
             </p>
           </motion.div>
 

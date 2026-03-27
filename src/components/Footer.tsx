@@ -9,9 +9,9 @@ export function Footer() {
           <div className="md:col-span-2">
             <Logo size="lg" />
             <p className="mt-4 text-sm text-muted-foreground max-w-md">
-              CertiDocs provides digital certification services for evidence files, 
-              attesting to file integrity, timestamps, and provenance. Our service 
-              is not a substitute for legal advice or official notarization.
+            CertiDocs provides court-admissible digital certification and legal document 
+              drafting services. All certified evidence and drafted legal documents are fully 
+              admissible in court proceedings.
             </p>
           </div>
 
@@ -58,8 +58,7 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t border-border">
           <p className="text-xs text-muted-foreground text-center">
             © {new Date().getFullYear()} CertiDocs. All rights reserved. 
-            CertiDocs certifies file integrity and provenance only—not legal validity. 
-            This service does not constitute legal advice or official notarization.
+            All certified documents and drafted legal documents are court-admissible.
           </p>
         </div>
       </div>

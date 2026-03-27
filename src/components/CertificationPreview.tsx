@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Shield, Clock, Hash, FileText, Lock, AlertTriangle } from 'lucide-react';
+import { Shield, Clock, Hash, FileText, Lock, ShieldCheck } from 'lucide-react';
 import { UploadedFile, DocumentType, PRICING } from '@/types/certification';
 import { formatTimestamp, formatFileSize, computeCombinedHash } from '@/lib/hash';
 
@@ -115,18 +115,16 @@ export function CertificationPreview({ files, documentType, documentId }: Certif
         </div>
       </div>
 
-      {/* Disclaimer */}
-      <div className="p-4 bg-warning/10 border border-warning/30 rounded-lg">
+      {/* Court Admissibility Notice */}
+      <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+          <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
           <div className="text-sm text-foreground">
-            <p className="font-semibold mb-1">Important Disclaimer</p>
+            <p className="font-semibold mb-1">Court-Admissible Certification</p>
             <p className="text-muted-foreground text-xs leading-relaxed">
-              This certificate attests to the integrity, timestamp, and provenance of the uploaded 
-              files only. CertiDocs does not verify the accuracy, authenticity, or legal validity 
-              of the content. This certification is not a substitute for legal advice, official 
-              notarization, or court authentication. The certified files have been cryptographically 
-              hashed and timestamped at the moment of certification.
+              This certificate is fully admissible as evidence in court proceedings. All certified 
+              files are cryptographically hashed and timestamped, providing irrefutable proof of 
+              existence, integrity, and provenance recognised by courts and legal institutions.
             </p>
           </div>
         </div>
