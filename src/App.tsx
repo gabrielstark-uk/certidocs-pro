@@ -13,6 +13,9 @@ import HowItWorks from "./pages/HowItWorks";
 import DraftDocument from "./pages/DraftDocument";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Verify from "./pages/Verify";
+import Cases from "./pages/Cases";
+import CaseAnalysis from "./pages/CaseAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +37,9 @@ const App = () => (
               <Route path="/success" element={<Success />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/draft-document" element={<DraftDocument />} />
+              <Route path="/verify" element={<Verify />} />
+              <Route path="/cases" element={<Cases />} />
+              <Route path="/case-analysis" element={<CaseAnalysis />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

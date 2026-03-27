@@ -52,6 +52,39 @@ export type Database = {
           },
         ]
       }
+      cases: {
+        Row: {
+          case_reference: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          case_reference?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          case_reference?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       certification_files: {
         Row: {
           certification_id: string
@@ -101,6 +134,7 @@ export type Database = {
       }
       certifications: {
         Row: {
+          case_id: string | null
           certified_at: string | null
           combined_hash: string | null
           created_at: string
@@ -119,6 +153,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          case_id?: string | null
           certified_at?: string | null
           combined_hash?: string | null
           created_at?: string
@@ -137,6 +172,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          case_id?: string | null
           certified_at?: string | null
           combined_hash?: string | null
           created_at?: string
@@ -154,7 +190,15 @@ export type Database = {
           total_files?: number
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "certifications_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

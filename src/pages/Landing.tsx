@@ -179,12 +179,35 @@ export default function Landing() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-success" />
-              <span>No Account Required</span>
+              <span>AI Case Analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-success" />
               <span>Secure Payments via Stripe</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* New Features Section */}
+      <section className="py-16 border-b border-border">
+        <div className="container">
+          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+            <Link to="/verify" className="group p-6 rounded-xl bg-card border border-border hover:border-accent/40 transition-all">
+              <ShieldCheck className="w-8 h-8 text-accent mb-4" />
+              <h3 className="font-display text-lg font-semibold text-foreground mb-2">Verify a Certificate</h3>
+              <p className="text-sm text-muted-foreground">Check the authenticity of any CertiDocs certificate using its Document ID.</p>
+            </Link>
+            <Link to="/cases" className="group p-6 rounded-xl bg-card border border-border hover:border-accent/40 transition-all">
+              <Scale className="w-8 h-8 text-accent mb-4" />
+              <h3 className="font-display text-lg font-semibold text-foreground mb-2">Case Management</h3>
+              <p className="text-sm text-muted-foreground">Organise your certifications into cases and legal matters for easy tracking.</p>
+            </Link>
+            <Link to="/case-analysis" className="group p-6 rounded-xl bg-card border border-border hover:border-accent/40 transition-all">
+              <Sparkles className="w-8 h-8 text-accent mb-4" />
+              <h3 className="font-display text-lg font-semibold text-foreground mb-2">AI Case Analysis</h3>
+              <p className="text-sm text-muted-foreground">Get an AI-powered assessment of your case's probability of winning.</p>
+            </Link>
           </div>
         </div>
       </section>
