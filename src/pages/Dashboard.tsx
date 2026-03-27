@@ -129,7 +129,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button asChild>
                 <Link to="/upload">
                   <Plus className="w-4 h-4 mr-2" />
@@ -140,6 +140,18 @@ export default function Dashboard() {
                 <Link to="/draft-document">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Draft Document
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/cases">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Cases
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/case-analysis">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Case Analysis
                 </Link>
               </Button>
             </div>
