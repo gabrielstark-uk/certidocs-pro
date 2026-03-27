@@ -48,40 +48,56 @@ Deno.serve(async (req) => {
 
     const { certificationId, documentId } = await req.json();
 
-    // Input validation
-    if (!certificationId || typeof certificationId !== "string") {
+    // Support lookup by either certificationId or documentId
+    if (!certificationId && !documentId) {
       return new Response(
-        JSON.stringify({ error: "Missing or invalid certification ID" }),
+        JSON.stringify({ error: "Missing certification ID or document ID" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // UUID format validation
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(certificationId)) {
+    // If certificationId provided, validate UUID format
+    if (certificationId) {
+      if (typeof certificationId !== "string") {
+        return new Response(
+          JSON.stringify({ error: "Invalid certification ID" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(certificationId)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid certification ID format" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
+
+    // Validate documentId if provided
+    if (documentId && (typeof documentId !== "string" || documentId.length > 100)) {
       return new Response(
-        JSON.stringify({ error: "Invalid certification ID format" }),
+        JSON.stringify({ error: "Invalid document ID" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    console.log("Fetching certification:", certificationId);
+    console.log("Fetching certification:", certificationId || documentId);
 
-    // Build query - require documentId for ownership verification if provided
     let query = supabase
       .from("certifications")
-      .select("id, document_id, document_type, total_files, email, status, created_at")
-      .eq("id", certificationId);
+      .select("id, document_id, document_type, total_files, status, created_at, combined_hash, certified_at");
 
-    // If documentId provided, verify ownership
-    if (documentId && typeof documentId === "string") {
+    if (certificationId) {
+      query = query.eq("id", certificationId);
+    }
+    if (documentId) {
       query = query.eq("document_id", documentId);
     }
 
     const { data: certification, error: certError } = await query.single();
 
     if (certError || !certification) {
-      console.log("Certification not found or access denied");
+      console.log("Certification not found");
       return new Response(
         JSON.stringify({ error: "Certification not found" }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -96,9 +112,10 @@ Deno.serve(async (req) => {
           document_id: certification.document_id,
           document_type: certification.document_type,
           total_files: certification.total_files,
-          email: certification.email,
           status: certification.status,
           created_at: certification.created_at,
+          combined_hash: certification.combined_hash,
+          certified_at: certification.certified_at,
         },
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
